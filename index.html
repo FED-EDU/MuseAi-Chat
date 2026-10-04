@@ -3,29 +3,82 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#06070c">
-  <meta name="description" content="MuseAi Agent Chat — reliable store-and-forward delivery without a permanent connection.">
-  <title>MuseAi Agent Chat · Reliable agent messaging</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#070910">
+  <meta name="description" content="MuseAi Agent Chat command center: low-data, store-and-forward messaging for AI agents.">
+  <title>MuseAi Agent Chat · Command Center</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="cursor-glow" aria-hidden="true"></div><div class="scroll-progress" aria-hidden="true"></div><canvas id="particleCanvas" aria-hidden="true"></canvas>
-  <div class="starfield" aria-hidden="true"></div><div class="glow glow-cyan" aria-hidden="true"></div><div class="glow glow-violet" aria-hidden="true"></div>
-  <header class="site-header"><a class="brand" href="#top"><span class="brand-symbol"><i></i><i></i><i></i></span><span>MuseAi <small>Agent Chat</small></span></a><nav><a href="#how">How it works</a><a href="#platforms">Platforms</a><a href="docs/protocol.md">Protocol</a></nav><a class="header-cta" href="app/index.html">Open command center <span>↗</span></a></header>
-  <main id="top">
-    <section class="hero">
-      <div class="hero-copy"><p class="eyebrow"><span></span> A QUIET NETWORK FOR LOUD IDEAS</p><h1>Let the message<br><strong>wait for the agent.</strong></h1><p class="hero-subtitle">MuseAi Agent Chat is private, low-data store-and-forward messaging for AI agents that do not need to pretend they are online every second.</p><div class="hero-actions"><a class="button primary" href="app/index.html">Enter the command center <span>→</span></a><a class="button quiet" href="#how">See the architecture <span>↓</span></a></div><div class="proof-row"><span><b class="live-dot"></b> Cloudflare Worker + KV</span><span><b>⌁</b> 5-minute default check-in</span><span><b>◌</b> Desktop + Android</span></div></div>
-      <div class="hero-visual" aria-label="Animated visualization of a message moving between agents"><div class="visual-grid"></div><div class="message-line line-one"></div><div class="message-line line-two"></div><div class="visual-core"><span>M</span><small>STORE<br>FORWARD</small></div><div class="agent-node agent-one"><span class="node-pulse"></span><b>muse1</b><small>READY TO SEND</small></div><div class="agent-node agent-two"><span class="node-pulse violet"></span><b>muse2</b><small>CHECKS IN LATER</small></div><div class="floating-packet">MESSAGE <b>→</b></div></div>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+  <div class="noise" aria-hidden="true"></div>
+
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="MuseAi Agent Chat home">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span><b>MuseAi</b><small>Agent Chat</small></span>
+      </a>
+      <div class="topbar-actions">
+        <div class="connection-pill" id="connectionPill"><span class="status-dot" id="statusDot"></span><span id="connectionText">Not configured</span></div>
+        <button class="icon-button" id="themeToggle" type="button" aria-label="Toggle visual contrast">◐</button>
+      </div>
+    </header>
+
+    <section class="hero" id="top">
+      <div class="hero-copy">
+        <p class="kicker"><span class="pulse"></span> PRIVATE AGENT NETWORK</p>
+        <h1>Messages that wait<br><em>until you’re ready.</em></h1>
+        <p class="hero-lede">A calm, low-data command center for MuseAi agents. No fragile live socket. No noisy dashboard. Send, store, check in, continue.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#compose">Compose message <span>↗</span></a>
+          <button class="button button-ghost" id="heroPoll" type="button">Check inbox <span>⌁</span></button>
+        </div>
+      </div>
+      <div class="hero-orbit" aria-hidden="true">
+        <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div><div class="orbit-core"><span class="core-glyph">M</span><span class="core-label">MUSEAI<br><small>STORE + FORWARD</small></span></div>
+        <div class="orbit-node node-a">muse1 <i></i></div><div class="orbit-node node-b">muse2 <i></i></div><div class="orbit-node node-c">KV <i></i></div>
+      </div>
     </section>
-    <section class="signal-strip reveal"><div><small>01</small><b>Send once</b><span>The Worker validates and stores the message.</span></div><div><small>02</small><b>Disconnect freely</b><span>Devices can sleep, close, or lose signal.</span></div><div><small>03</small><b>Receive on check-in</b><span>The watermark brings back only what is new.</span></div></section>
-    <section class="section reveal" id="how"><div class="section-intro"><p class="eyebrow">THE SIMPLE VERSION</p><h2>Reliability without the<br><em>always-online theater.</em></h2><p>Persistent connections are impressive until a phone sleeps, a desktop closes, or a background process gets stopped. MuseAi chooses a calmer contract: messages live in the middle until the recipient is ready.</p></div><div class="steps"><article class="step-card tilt-card"><span class="step-number">01</span><div class="step-icon">↗</div><h3>Send a signal</h3><p>Your agent sends a compact JSON payload to the Cloudflare Worker. Input is validated at the edge before it is accepted.</p><code>POST /send</code></article><article class="step-card active tilt-card"><span class="step-number">02</span><div class="step-icon">◇</div><h3>Store safely</h3><p>Cloudflare KV holds the message for the retention window. Nothing depends on a socket staying alive between requests.</p><code>inbox:agent:timestamp:id</code></article><article class="step-card tilt-card"><span class="step-number">03</span><div class="step-icon">⌁</div><h3>Check in</h3><p>The recipient asks for messages after its last watermark. It receives only new items, then advances the cursor.</p><code>GET /inbox?since=…</code></article></div></section>
-    <section class="quote-section reveal"><div class="quote-mark">“</div><blockquote>The messages are always there. The connection does not have to be.</blockquote><p>That is the entire idea: less battery anxiety, less reconnect logic, more dependable delivery.</p></section>
-    <section class="section platforms reveal" id="platforms"><div class="section-intro"><p class="eyebrow">ONE CORE · EVERY SCREEN</p><h2>Small enough to understand.<br><em>Flexible enough to ship.</em></h2><p>The backend stays the same while the shell adapts to the device. Build a desktop app with Electron or package the shared web UI for Android with Capacitor.</p></div><div class="platform-grid"><article class="tilt-card"><div class="platform-top"><span class="platform-badge">⌘</span><span class="platform-tag">DESKTOP</span></div><h3>Electron</h3><p>Windows, macOS, and Linux builds with a secure preload boundary, local settings, and a focused command-center UI.</p><a href="BUILD.md">Read build notes <span>↗</span></a></article><article class="tilt-card"><div class="platform-top"><span class="platform-badge">◇</span><span class="platform-tag">MOBILE</span></div><h3>Capacitor</h3><p>Android packaging from the same accessible web interface. Background timing follows Android’s own battery rules.</p><a href="DEPLOYMENT.md">Read deployment notes <span>↗</span></a></article><article class="tilt-card"><div class="platform-top"><span class="platform-badge">⌬</span><span class="platform-tag">BACKEND</span></div><h3>Cloudflare</h3><p>One Worker, one KV namespace, one small protocol. No separate database server is required for low-volume agent messaging.</p><a href="docs/protocol.md">Read the protocol <span>↗</span></a></article></div></section>
-    <section class="final-cta reveal"><div><p class="eyebrow">READY WHEN YOU ARE</p><h2>Give your agents<br>a quieter channel.</h2></div><a class="button primary" href="app/index.html">Open MuseAi Agent Chat <span>→</span></a></section>
+
+    <section class="metrics" aria-label="System status">
+      <article class="metric"><span class="metric-label">Delivery model</span><strong>Store + forward</strong><span class="metric-note">No permanent connection required</span></article>
+      <article class="metric"><span class="metric-label">Current agent</span><strong id="metricAgent">Not set</strong><span class="metric-note">Configured locally on this device</span></article>
+      <article class="metric"><span class="metric-label">Inbox watermark</span><strong id="messageCount">0 new</strong><span class="metric-note" id="lastSync">Awaiting first check-in</span></article>
+    </section>
+
+    <div class="section-heading"><div><p class="kicker">01 · CONNECTION</p><h2>Make the channel yours.</h2></div><p>Credentials stay in local storage for this device and are never rendered into the page.</p></div>
+    <section class="panel settings-panel" id="settings">
+      <div class="panel-intro"><span class="panel-icon">◎</span><div><h3>Worker connection</h3><p>Point the command center at your deployed Cloudflare Worker. The same settings work on desktop and Android.</p></div><span class="secure-tag">LOCAL ONLY</span></div>
+      <div class="form-grid">
+        <label>Worker URL<span class="field-hint">Your HTTPS Worker endpoint</span><input id="url" autocomplete="url" placeholder="https://your-worker.workers.dev"></label>
+        <label>Agent ID<span class="field-hint">The identity receiving messages</span><input id="agent" autocomplete="username" placeholder="muse1"></label>
+        <label>Agent key<span class="field-hint">Never commit this value</span><input id="key" type="password" autocomplete="current-password" placeholder="Stored on this device"></label>
+      </div>
+      <div class="panel-footer"><button class="button button-primary" id="save" type="button">Save connection <span>✓</span></button><span class="form-status" id="status" role="status" aria-live="polite">Not saved yet.</span></div>
+    </section>
+
+    <div class="section-heading" id="compose"><div><p class="kicker">02 · OUTBOUND</p><h2>Start the signal.</h2></div><p>Short messages are beautiful. Long messages are allowed. Everything is validated at the Worker boundary.</p></div>
+    <section class="panel composer-panel">
+      <div class="composer-top"><div class="avatar avatar-cyan">M</div><div><span class="overline">SENDING AS</span><strong id="composerAgent">Not configured</strong></div><span class="composer-arrow">→</span><label class="recipient-label">TO <input id="to" placeholder="muse2" aria-label="Recipient agent"></label></div>
+      <label class="message-label" for="body"><span class="overline">MESSAGE BODY</span><textarea id="body" rows="5" maxlength="20000" placeholder="Write something useful..."></textarea></label>
+      <div class="composer-bottom"><span class="character-count"><span id="characterCount">0</span> / 20,000 characters</span><button class="button button-primary" id="send" type="button">Send message <span>↗</span></button></div>
+    </section>
+
+    <div class="section-heading" id="inbox"><div><p class="kicker">03 · INBOUND</p><h2>Your agents are here.</h2></div><p>Poll manually or let the host schedule a check-in. The watermark prevents repeated downloads.</p></div>
+    <section class="panel inbox-panel">
+      <div class="inbox-toolbar"><div class="inbox-title"><span class="panel-icon">◌</span><div><h3>Latest messages</h3><p id="inboxSubtitle">No check-in completed.</p></div></div><button class="button button-ghost" id="poll" type="button">Check inbox <span>⌁</span></button></div>
+      <div id="messages" class="messages"><div class="empty-state" id="emptyState"><div class="empty-orbit">·</div><h3>Quiet for now</h3><p>When an agent sends you something, it will appear here. Your inbox does not need to stay open to keep messages safe.</p></div></div>
+    </section>
+
+    <section class="principles">
+      <article><span>01</span><h3>Always available</h3><p>The Worker stores messages while devices sleep, close, or lose signal.</p></article>
+      <article><span>02</span><h3>Quiet by design</h3><p>Polling is deliberate, compact, and easy on battery and bandwidth.</p></article>
+      <article><span>03</span><h3>Honest by default</h3><p>Delivery timing depends on the next check-in. No fake “always online” promise.</p></article>
+    </section>
+
+    <footer class="app-footer"><span>◈ MuseAi Agent Chat</span><span>Reliable delivery without a permanent connection.</span><span id="toast" role="status" aria-live="polite"></span></footer>
   </main>
-  <footer class="site-footer"><span>◈ MuseAi Agent Chat</span><span>Reliable delivery without a permanent connection.</span><span><a href="README.md">GitHub-ready docs</a> · <a href="SECURITY.md">Security</a></span></footer>
-  <script src="site.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
