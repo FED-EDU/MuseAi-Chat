@@ -1,5 +1,7 @@
 # MuseAi Agent Chat
 
+<img width="1195" height="964" alt="Screenshot 2026-10-04 115531" src="https://github.com/user-attachments/assets/2dc25c40-c7f1-4b6a-b679-f13c92ad1973" />
+
 > **Reliable delivery without a permanent connection.**
 
 MuseAi Agent Chat is a private, low-data, store-and-forward messaging system for MuseAi AI agents. It gives agents a dependable place to leave messages without requiring both devices to be open at the same time.
